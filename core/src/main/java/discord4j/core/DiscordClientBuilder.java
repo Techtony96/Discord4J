@@ -42,6 +42,10 @@ import discord4j.rest.route.Routes;
 import discord4j.store.jdk.JdkStoreService;
 import discord4j.store.service.StoreService;
 import discord4j.store.service.StoreServiceLoader;
+import discord4j.voice.VoiceClientFactory;
+import discord4j.voice.VoicePayloadReader;
+import discord4j.voice.VoicePayloadWriter;
+import discord4j.voice.impl.DefaultVoiceClientFactory;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.FluxProcessor;
 import reactor.core.scheduler.Scheduler;
@@ -213,8 +217,11 @@ public final class DiscordClientBuilder {
                 identifyOptions.getShardCount());
         final EventDispatcher eventDispatcher = new EventDispatcher(eventProcessor, eventScheduler);
 
-        final ServiceMediator serviceMediator = new ServiceMediator(gatewayClient, restClient, storeService,
-                stateHolder, eventDispatcher, config);
+        final VoiceClientFactory voiceClientFactory =
+                new DefaultVoiceClientFactory(new VoicePayloadReader(mapper), new VoicePayloadWriter(mapper)); // FIXME
+
+        final ServiceMediator serviceMediator = new ServiceMediator(gatewayClient, restClient, voiceClientFactory,
+                storeService, stateHolder, eventDispatcher, config);
 
         serviceMediator.getGatewayClient().dispatch()
                 .map(dispatch -> DispatchContext.of(dispatch, serviceMediator))
