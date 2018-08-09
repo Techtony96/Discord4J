@@ -69,8 +69,7 @@ public final class CommandBootstrapper {
     public Flux<? extends Command> attach(DiscordClient client) {
         return client.getEventDispatcher()
                 .on(MessageCreateEvent.class)
-                .flatMap(event -> dispatcher.dispatch(event, providers, errorHandler))
-                .share();
+                .flatMap(event -> dispatcher.dispatch(event, providers, errorHandler));
     }
 
     /**
